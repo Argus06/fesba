@@ -193,10 +193,7 @@ async def on_message(message):
 async def on_ready():
     #channel = bot.get_channel(1337711879832862740)  # 投稿先のチャンネルIDを設定
     channel = bot.get_channel(1357707739748368414)  # 投稿先のチャンネルIDを設定
-
-    if channel:
-        await channel.send(f"**{bot.user.name}** が起動しました！")
-    print(f"Bot is online as {bot.user}")
+    
     scheduler = AsyncIOScheduler()
     scheduler.add_job(send_stage_and_rule, "cron", minute=0)  # 毎時0分に実行
     scheduler.start()
