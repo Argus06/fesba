@@ -9,6 +9,8 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
+scheduler_started = False  # ← スケジューラが起動済みかどうかを管理
+
 # .envファイルを読み込む
 load_dotenv()
 
@@ -191,13 +193,18 @@ async def on_message(message):
 # Botの起動時
 @bot.event
 async def on_ready():
-    #channel = bot.get_channel(1337711879832862740)  # 投稿先のチャンネルIDを設定
+    global scheduler_started
     channel = bot.get_channel(1357707739748368414)  # 投稿先のチャンネルIDを設定
     
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(send_stage_and_rule, "cron", minute=0)  # 毎時0分に実行
-    scheduler.start()
+    if not scheduler_started:
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(send_stage_and_rule, "cron", minute=0)
+        scheduler.start()
+        scheduler_started = True  # フラグを立てる
+        print("✅ スケジューラを起動しました。")
 
+    print(f"🟢 Bot is ready as {bot.user}")
+    
 # Botを起動
 if TOKEN:
     bot.run(TOKEN)
@@ -205,20 +212,3 @@ else:
     print("BOT_TOKEN が設定されていません。環境変数を確認してください。")
 
 #作業メモ、特定のステージの時間を知るコマンド、その日の残りのスケジュール表after、ルールのみの検索コマンド
-
-# ----- Render Web Service対策：ダミーのHTTPサーバー起動 -----
-import threading
-from http.server import HTTPServer, BaseHTTPRequestHandler
-
-class DummyHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Bot is running.")
-
-def run_dummy_server():
-    server = HTTPServer(("0.0.0.0", 10000), DummyHandler)
-    server.serve_forever()
-
-# Botと並列でダミーサーバーを起動
-threading.Thread(target=run_dummy_server, daemon=True).start()
