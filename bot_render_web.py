@@ -109,7 +109,6 @@ async def send_stage_and_rule():
             stage_name = stages[int(entry["stage"])]
             rule_name = rules[int(entry["rule"])]
             message = f"{now.month}月{now.day}日 {current_hour}『{stage_name}』『{rule_name}』です。"
-            #channel = bot.get_channel(1337711879832862740)  # 投稿先のチャンネルIDを設定
             channel = bot.get_channel(1357707739748368414)  # 投稿先のチャンネルIDを設定
 
             if channel:
@@ -156,10 +155,7 @@ async def next_stage_command(ctx):
         if entry["time"] == next_hour:
             stage_name = stages[int(entry["stage"])]  # ステージ名を取得
             rule_name = rules[int(entry["rule"])]  # ルール名を取得
-            message = (
-                f"{one_hour_later.month}月{one_hour_later.day}日 {next_hour} "
-                f"『{stage_name}』『{rule_name}』です。"
-            )
+            message = f"{one_hour_later.month}月{one_hour_later.day}日 {next_hour}『{stage_name}』『{rule_name}』です。"
             await ctx.send(message)
             return
 
@@ -176,14 +172,106 @@ async def today_command(ctx):
     schedule = stages_even if day_type == "even" else stages_odd
 
     # スケジュールを整形
-    schedule_text = f" **{now.month}月{now.day}日のステージ表**\n\n"
+    schedule_text = f" **{now.month}月{now.day}日のステージ表**\n"
     for entry in schedule:
         stage_name = stages[int(entry["stage"])]
         rule_name = rules[int(entry["rule"])]
-        schedule_text += f" {entry['time']} - 『{stage_name}』『{rule_name}』\n"
+        schedule_text += f" {entry['time']}『{stage_name}』『{rule_name}』\n"
 
     # メッセージを送信
     await ctx.send(schedule_text)
+
+# !after コマンドの実装
+@bot.command(name="after")
+async def after_command(ctx):
+    now = datetime.now(pytz.utc).astimezone(jst)
+    current_time = now.strftime("%H:%M")
+    day_type = "even" if now.day % 2 == 0 else "odd"  # 偶数日 or 奇数日判定
+
+    # 適切なスケジュールを選択
+    schedule = stages_even if day_type == "even" else stages_odd
+
+    # 現在時刻以降のスケジュールを整形
+    schedule_text = f" **{now.month}月{now.day}日の現在以降のステージ表**\n"
+    for entry in schedule:
+        if entry["time"] >= current_time:
+            stage_name = stages[int(entry["stage"])]
+            rule_name = rules[int(entry["rule"])]
+            schedule_text += f" {entry['time']}『{stage_name}』『{rule_name}』\n"
+
+    # メッセージを送信
+    if schedule_text.strip().endswith("ステージ表**"):
+        await ctx.send("🛑 現在以降のスケジュールは見つかりませんでした。")
+    else:
+        await ctx.send(schedule_text)
+
+# !canon コマンドの実装
+@bot.command(name="canon")
+async def canon_schedule(ctx):
+    now = datetime.now(pytz.utc).astimezone(jst)
+    current_time = now.strftime("%H:%M")
+
+    # 今日と明日でスケジュールを用意
+    day_types = []
+    for offset in [0, 1]:  # 今日と明日
+        day = now.day + offset
+        day_type = "even" if day % 2 == 0 else "odd"
+        schedule = stages_even if day_type == "even" else stages_odd
+        day_types.append((day, schedule))
+
+    result = []
+    for offset, (day, schedule) in enumerate(day_types):
+        for entry in schedule:
+            # 今日の場合は current_time 以降、明日は全部
+            if offset == 0 and entry["time"] < current_time:
+                continue
+            if rules[int(entry["rule"])] == "キャノンエスコート":
+                stage = stages[int(entry["stage"])]
+                message = f"{entry['time']}『{stage}』"
+                result.append(message)
+                if len(result) >= 5:
+                    break
+        if len(result) >= 5:
+            break
+
+    if result:
+        await ctx.send(" **現在以降のキャノンエスコートのスケジュール（最大5件）**\n" + "\n".join(result))
+    else:
+        await ctx.send(" 現在以降にキャノンエスコートのスケジュールは見つかりませんでした。")
+
+# !hack コマンドの実装
+@bot.command(name="hack")
+async def canon_schedule(ctx):
+    now = datetime.now(pytz.utc).astimezone(jst)
+    current_time = now.strftime("%H:%M")
+
+    # 今日と明日でスケジュールを用意
+    day_types = []
+    for offset in [0, 1]:  # 今日と明日
+        day = now.day + offset
+        day_type = "even" if day % 2 == 0 else "odd"
+        schedule = stages_even if day_type == "even" else stages_odd
+        day_types.append((day, schedule))
+
+    result = []
+    for offset, (day, schedule) in enumerate(day_types):
+        for entry in schedule:
+            # 今日の場合は current_time 以降、明日は全部
+            if offset == 0 and entry["time"] < current_time:
+                continue
+            if rules[int(entry["rule"])] == "アンテナハック":
+                stage = stages[int(entry["stage"])]
+                message = f"{entry['time']}『{stage}』"
+                result.append(message)
+                if len(result) >= 5:
+                    break
+        if len(result) >= 5:
+            break
+
+    if result:
+        await ctx.send(" **現在以降のアンテナハックのスケジュール（最大5件）**\n" + "\n".join(result))
+    else:
+        await ctx.send(" 現在以降にアンテナハックのスケジュールは見つかりませんでした。")
 
 # 受け取ったコマンドを表示
 async def on_message(message):
@@ -211,4 +299,4 @@ if TOKEN:
 else:
     print("BOT_TOKEN が設定されていません。環境変数を確認してください。")
 
-#作業メモ、特定のステージの時間を知るコマンド、その日の残りのスケジュール表after、ルールのみの検索コマンド
+#作業メモ、特定のステージの時間を知るコマンド
