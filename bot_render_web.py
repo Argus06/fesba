@@ -209,28 +209,23 @@ async def after_command(ctx):
 @bot.command(name="next5h")
 async def next_5_hours_command(ctx):
     now = datetime.now(pytz.utc).astimezone(jst)
-    schedule_text = f" **{now.month}月{now.day}日〜翌日分を含む、次の5時間のステージ表**\n"
+    current_hour = now.hour
+    day_type = "even" if now.day % 2 == 0 else "odd"
+    schedule = stages_even if day_type == "even" else stages_odd
 
-    result_count = 0
+    # 5時間分のスケジュールを収集
+    schedule_text = f" **{now.month}月{now.day}日 現在から5時間のステージ表**\n"
     for offset in range(5):
-        target_time = (now + timedelta(hours=offset)).strftime("%H:%M")
-        target_day = now.day + (1 if now.hour + offset >= 24 else 0)
-        day_type = "even" if target_day % 2 == 0 else "odd"
-        schedule = stages_even if day_type == "even" else stages_odd
-
+        target_hour = (current_hour + offset) % 24
+        target_time = f"{target_hour:02d}:00"
         for entry in schedule:
             if entry["time"] == target_time:
                 stage_name = stages[int(entry["stage"])]
                 rule_name = rules[int(entry["rule"])]
                 schedule_text += f" {entry['time']}『{stage_name}』『{rule_name}』\n"
-                result_count += 1
-                break
+                break  # 見つかったら次の時間へ
 
-    if result_count == 0:
-        await ctx.send("🛑 スケジュールが見つかりませんでした。")
-    else:
-        await ctx.send(schedule_text)
-
+    await ctx.send(schedule_text)
 
 # !canon コマンドの実装
 @bot.command(name="canon")
