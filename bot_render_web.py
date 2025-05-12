@@ -227,6 +227,7 @@ async def next_5_hours_command(ctx):
 
     await ctx.send(schedule_text)
 
+
 # !canon コマンドの実装
 @bot.command(name="canon")
 async def canon_schedule(ctx):
