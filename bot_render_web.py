@@ -39,57 +39,57 @@ rules = [
 ]
 
 # ステージとルールのデータ（例として奇数日と偶数日のデータを用意）
-stages_even = [
-    {"time": "00:00", "stage": "0", "rule": "1"},
-    {"time": "01:00", "stage": "1", "rule": "0"},
-    {"time": "02:00", "stage": "4", "rule": "1"},
+stages_odd = [
+    {"time": "00:00", "stage": "4", "rule": "1"},
+    {"time": "01:00", "stage": "2", "rule": "0"},
+    {"time": "02:00", "stage": "1", "rule": "1"},
     {"time": "03:00", "stage": "0", "rule": "0"},
-    {"time": "04:00", "stage": "1", "rule": "1"},
-    {"time": "05:00", "stage": "2", "rule": "0"},
+    {"time": "04:00", "stage": "0", "rule": "1"},
+    {"time": "05:00", "stage": "1", "rule": "0"},
     {"time": "06:00", "stage": "3", "rule": "1"},
-    {"time": "07:00", "stage": "1", "rule": "0"},
-    {"time": "08:00", "stage": "0", "rule": "1"},
+    {"time": "07:00", "stage": "4", "rule": "0"},
+    {"time": "08:00", "stage": "4", "rule": "1"},
     {"time": "09:00", "stage": "3", "rule": "0"},
     {"time": "10:00", "stage": "1", "rule": "1"},
-    {"time": "11:00", "stage": "4", "rule": "0"},
-    {"time": "12:00", "stage": "4", "rule": "1"},
-    {"time": "13:00", "stage": "1", "rule": "0"},
+    {"time": "11:00", "stage": "2", "rule": "0"},
+    {"time": "12:00", "stage": "0", "rule": "1"},
+    {"time": "13:00", "stage": "0", "rule": "0"},
     {"time": "14:00", "stage": "3", "rule": "1"},
-    {"time": "15:00", "stage": "0", "rule": "0"},
-    {"time": "16:00", "stage": "1", "rule": "0"},
-    {"time": "17:00", "stage": "3", "rule": "1"},
-    {"time": "18:00", "stage": "4", "rule": "0"},
-    {"time": "19:00", "stage": "1", "rule": "1"},
-    {"time": "20:00", "stage": "0", "rule": "0"},
-    {"time": "21:00", "stage": "0", "rule": "1"},
-    {"time": "22:00", "stage": "1", "rule": "0"},
-    {"time": "23:00", "stage": "4", "rule": "1"},
+    {"time": "15:00", "stage": "1", "rule": "0"},
+    {"time": "16:00", "stage": "4", "rule": "0"},
+    {"time": "17:00", "stage": "0", "rule": "1"},
+    {"time": "18:00", "stage": "3", "rule": "0"},
+    {"time": "19:00", "stage": "3", "rule": "1"},
+    {"time": "20:00", "stage": "2", "rule": "0"},
+    {"time": "21:00", "stage": "4", "rule": "1"},
+    {"time": "22:00", "stage": "0", "rule": "0"},
+    {"time": "23:00", "stage": "1", "rule": "1"},
 ]
-stages_odd = [
-    {"time": "00:00", "stage": "2", "rule": "0"},
-    {"time": "01:00", "stage": "1", "rule": "1"},
-    {"time": "02:00", "stage": "3", "rule": "0"},
+stages_even = [
+    {"time": "00:00", "stage": "1", "rule": "0"},
+    {"time": "01:00", "stage": "0", "rule": "1"},
+    {"time": "02:00", "stage": "4", "rule": "0"},
     {"time": "03:00", "stage": "3", "rule": "1"},
-    {"time": "04:00", "stage": "1", "rule": "0"},
-    {"time": "05:00", "stage": "0", "rule": "1"},
-    {"time": "06:00", "stage": "4", "rule": "0"},
+    {"time": "04:00", "stage": "3", "rule": "0"},
+    {"time": "05:00", "stage": "4", "rule": "1"},
+    {"time": "06:00", "stage": "2", "rule": "0"},
     {"time": "07:00", "stage": "1", "rule": "1"},
     {"time": "08:00", "stage": "0", "rule": "0"},
-    {"time": "09:00", "stage": "4", "rule": "1"},
+    {"time": "09:00", "stage": "0", "rule": "1"},
     {"time": "10:00", "stage": "1", "rule": "0"},
     {"time": "11:00", "stage": "3", "rule": "1"},
-    {"time": "12:00", "stage": "2", "rule": "0"},
-    {"time": "13:00", "stage": "1", "rule": "1"},
+    {"time": "12:00", "stage": "4", "rule": "0"},
+    {"time": "13:00", "stage": "4", "rule": "1"},
     {"time": "14:00", "stage": "3", "rule": "0"},
-    {"time": "15:00", "stage": "0", "rule": "1"},
-    {"time": "16:00", "stage": "1", "rule": "1"},
-    {"time": "17:00", "stage": "2", "rule": "0"},
-    {"time": "18:00", "stage": "4", "rule": "1"},
+    {"time": "15:00", "stage": "1", "rule": "1"},
+    {"time": "16:00", "stage": "4", "rule": "1"},
+    {"time": "17:00", "stage": "0", "rule": "0"},
+    {"time": "18:00", "stage": "1", "rule": "1"},
     {"time": "19:00", "stage": "1", "rule": "0"},
-    {"time": "20:00", "stage": "3", "rule": "1"},
-    {"time": "21:00", "stage": "3", "rule": "0"},
-    {"time": "22:00", "stage": "1", "rule": "1"},
-    {"time": "23:00", "stage": "4", "rule": "0"},
+    {"time": "20:00", "stage": "0", "rule": "1"},
+    {"time": "21:00", "stage": "4", "rule": "0"},
+    {"time": "22:00", "stage": "3", "rule": "1"},
+    {"time": "23:00", "stage": "3", "rule": "0"},
 ]
 
 # 毎時の投稿を実行する関数
@@ -209,24 +209,27 @@ async def after_command(ctx):
 @bot.command(name="next5h")
 async def next_5_hours_command(ctx):
     now = datetime.now(pytz.utc).astimezone(jst)
-    current_hour = now.hour
-    day_type = "even" if now.day % 2 == 0 else "odd"
-    schedule = stages_even if day_type == "even" else stages_odd
+    schedule_text = f"**{now.month}月{now.day}日 {now.hour:02d}時から5時間のステージ表**\n"
 
-    # 5時間分のスケジュールを収集
-    schedule_text = f" **{now.month}月{now.day}日 現在から5時間のステージ表**\n"
     for offset in range(5):
-        target_hour = (current_hour + offset) % 24
-        target_time = f"{target_hour:02d}:00"
+        target_time = now + timedelta(hours=offset)
+        target_hour = target_time.hour
+        target_day = target_time.day
+
+        # 日によって奇数偶数を判断し、スケジュールリストを取得
+        day_type = "even" if target_day % 2 == 0 else "odd"
+        schedule = stages_even if day_type == "even" else stages_odd
+
+        # スケジュールから一致する時間を探す
+        time_str = f"{target_hour:02d}:00"
         for entry in schedule:
-            if entry["time"] == target_time:
+            if entry["time"] == time_str:
                 stage_name = stages[int(entry["stage"])]
                 rule_name = rules[int(entry["rule"])]
-                schedule_text += f" {entry['time']}『{stage_name}』『{rule_name}』\n"
-                break  # 見つかったら次の時間へ
+                schedule_text += f"{time_str} 『{stage_name}』『{rule_name}』\n"
+                break
 
     await ctx.send(schedule_text)
-
 
 # !canon コマンドの実装
 @bot.command(name="canon")
