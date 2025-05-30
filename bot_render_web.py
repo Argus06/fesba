@@ -39,7 +39,7 @@ rules = [
 ]
 
 # ステージとルールのデータ（例として奇数日と偶数日のデータを用意）
-stages_odd = [
+stages_even = [
     {"time": "00:00", "stage": "3", "rule": "1"},
     {"time": "01:00", "stage": "0", "rule": "0"},
     {"time": "02:00", "stage": "0", "rule": "1"},
@@ -65,7 +65,7 @@ stages_odd = [
     {"time": "22:00", "stage": "2", "rule": "0"},
     {"time": "23:00", "stage": "0", "rule": "1"},
 ]
-stages_even = [
+stages_odd = [
     {"time": "00:00", "stage": "3", "rule": "0"},
     {"time": "01:00", "stage": "4", "rule": "1"},
     {"time": "02:00", "stage": "1", "rule": "0"},
