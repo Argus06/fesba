@@ -8,6 +8,7 @@ from apscheduler.triggers.cron import CronTrigger
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from datetime import date
 
 scheduler_started = False  # ← スケジューラが起動済みかどうかを管理
 
@@ -25,6 +26,8 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+
+
 # ステージとルールを番号に対応させた配列
 stages = [
     "エリジウム：商業区",
@@ -38,6 +41,8 @@ rules = [
     "アンテナハック",
     "キャノンエスコート"
 ]
+
+BASE_DATE = date(2025, 12, 31)  # 年月日 毎回設定
 
 # ステージとルールのデータ（例として奇数日と偶数日のデータを用意）
 stages_even = [
@@ -100,29 +105,28 @@ POST_CHANNELS = [
     1455880243628736562, # 公文
 ]
 
+def get_schedule_by_date(target_date: date):
+    days_diff = (target_date - BASE_DATE).days
+    return stages_even if days_diff % 2 == 0 else stages_odd
 
 # 毎時の投稿を実行する関数
 async def send_stage_and_rule():
     now = datetime.now(pytz.utc).astimezone(jst)
-    day_type = "even" if now.day % 2 == 0 else "odd"  # 偶数日か奇数日かを判定
+    schedule = get_schedule_by_date(now)
 
-    if day_type == "even":
-        schedule = stages_even
-    else:
-        schedule = stages_odd
-
-    # 現在の時刻に対応するデータを取得
     current_hour = now.strftime("%H:00")
     for entry in schedule:
         if entry["time"] == current_hour:
             stage_name = stages[int(entry["stage"])]
             rule_name = rules[int(entry["rule"])]
             message = f"{now.month}月{now.day}日 {current_hour}『{stage_name}』『{rule_name}』です。"
+
             for channel_id in POST_CHANNELS:
                 channel = bot.get_channel(channel_id)
                 if channel:
                     await channel.send(message)
             break
+
 
 # !now コマンドの実装
 @bot.command(name="now")
@@ -130,10 +134,8 @@ async def now_command(ctx):
     # 現在の時刻を取得
     now = datetime.now(pytz.utc).astimezone(jst)
     current_hour = now.strftime("%H:00")  # 時刻を "HH:00" フォーマットで統一
-    day_type = "even" if now.day % 2 == 0 else "odd"  # 偶数日か奇数日かを判定
+    schedule = get_schedule_by_date(now)
 
-    # 偶数日と奇数日でスケジュールを切り替え
-    schedule = stages_even if day_type == "even" else stages_odd
 
     # スケジュール内で現在の時刻を探す
     for entry in schedule:
@@ -154,10 +156,8 @@ async def next_stage_command(ctx):
     now = datetime.now(pytz.utc).astimezone(jst)
     one_hour_later = now + timedelta(hours=1)  # 現在時刻に1時間を加算
     next_hour = one_hour_later.strftime("%H:00")  # "HH:00" フォーマットで整形
-    day_type = "even" if one_hour_later.day % 2 == 0 else "odd"  # 偶数日か奇数日かを判定
+    schedule = get_schedule_by_date(now)
 
-    # 偶数日と奇数日でスケジュールを切り替え
-    schedule = stages_even if day_type == "even" else stages_odd
 
     # スケジュール内で1時間後の時刻を探す
     for entry in schedule:
@@ -175,10 +175,7 @@ async def next_stage_command(ctx):
 @bot.command(name="today")
 async def today_command(ctx):
     now = datetime.now(pytz.utc).astimezone(jst)
-    day_type = "even" if now.day % 2 == 0 else "odd"  # 偶数日 or 奇数日判定
-
-    # 適切なスケジュールを選択
-    schedule = stages_even if day_type == "even" else stages_odd
+    schedule = get_schedule_by_date(now)
 
     # スケジュールを整形
     schedule_text = f" **{now.month}月{now.day}日のステージ表**\n"
@@ -195,10 +192,7 @@ async def today_command(ctx):
 async def after_command(ctx):
     now = datetime.now(pytz.utc).astimezone(jst)
     current_time = now.strftime("%H:%M")
-    day_type = "even" if now.day % 2 == 0 else "odd"  # 偶数日 or 奇数日判定
-
-    # 適切なスケジュールを選択
-    schedule = stages_even if day_type == "even" else stages_odd
+    schedule = get_schedule_by_date(now)
 
     # 現在時刻以降のスケジュールを整形
     schedule_text = f" **{now.month}月{now.day}日の現在以降のステージ表**\n"
@@ -222,12 +216,8 @@ async def next_5_hours_command(ctx):
 
     for offset in range(5):
         target_time = now + timedelta(hours=offset)
-        target_hour = target_time.hour
-        target_day = target_time.day
+        schedule = get_schedule_by_date(target_time)
 
-        # 日によって奇数偶数を判断し、スケジュールリストを取得
-        day_type = "even" if target_day % 2 == 0 else "odd"
-        schedule = stages_even if day_type == "even" else stages_odd
 
         # スケジュールから一致する時間を探す
         time_str = f"{target_hour:02d}:00"
@@ -250,8 +240,7 @@ async def canon_schedule(ctx):
     day_types = []
     for offset in [0, 1]:  # 今日と明日
         day = now.day + offset
-        day_type = "even" if day % 2 == 0 else "odd"
-        schedule = stages_even if day_type == "even" else stages_odd
+        schedule = get_schedule_by_date(now)
         day_types.append((day, schedule))
 
     result = []
@@ -284,8 +273,7 @@ async def canon_schedule(ctx):
     day_types = []
     for offset in [0, 1]:  # 今日と明日
         day = now.day + offset
-        day_type = "even" if day % 2 == 0 else "odd"
-        schedule = stages_even if day_type == "even" else stages_odd
+        schedule = get_schedule_by_date(now)
         day_types.append((day, schedule))
 
     result = []
