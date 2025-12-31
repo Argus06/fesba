@@ -106,6 +106,8 @@ POST_CHANNELS = [
 ]
 
 def get_schedule_by_date(target_date: date):
+    if isinstance(target_date, datetime):
+        target_date = target_date.date()
     days_diff = (target_date - BASE_DATE).days
     return stages_even if days_diff % 2 == 0 else stages_odd
 
