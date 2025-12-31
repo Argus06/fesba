@@ -214,23 +214,33 @@ async def after_command(ctx):
 @bot.command(name="next5h")
 async def next_5_hours_command(ctx):
     now = datetime.now(pytz.utc).astimezone(jst)
-    schedule_text = f"**{now.month}月{now.day}日 {now.hour:02d}時から5時間のステージ表**\n"
+
+    # 次の時間（切り上げ）
+    start_time = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+
+    schedule_text = (
+        f"**{start_time.month}月{start_time.day}日 "
+        f"{start_time.hour:02d}時から5時間のステージ表**\n"
+    )
 
     for offset in range(5):
-        target_time = now + timedelta(hours=offset)
+        target_time = start_time + timedelta(hours=offset)
         schedule = get_schedule_by_date(target_time)
 
+        time_str = target_time.strftime("%H:00")
 
-        # スケジュールから一致する時間を探す
-        time_str = f"{target_hour:02d}:00"
         for entry in schedule:
             if entry["time"] == time_str:
                 stage_name = stages[int(entry["stage"])]
                 rule_name = rules[int(entry["rule"])]
-                schedule_text += f"{time_str} 『{stage_name}』『{rule_name}』\n"
+                schedule_text += (
+                    f"{target_time.month}/{target_time.day} "
+                    f"{time_str}『{stage_name}』『{rule_name}』\n"
+                )
                 break
 
     await ctx.send(schedule_text)
+
 
 # !canon コマンドの実装
 @bot.command(name="canon")
