@@ -158,7 +158,7 @@ async def next_stage_command(ctx):
     now = datetime.now(pytz.utc).astimezone(jst)
     one_hour_later = now + timedelta(hours=1)  # 現在時刻に1時間を加算
     next_hour = one_hour_later.strftime("%H:00")  # "HH:00" フォーマットで整形
-    schedule = get_schedule_by_date(now)
+    schedule = get_schedule_by_date(one_hour_later)
 
 
     # スケジュール内で1時間後の時刻を探す
